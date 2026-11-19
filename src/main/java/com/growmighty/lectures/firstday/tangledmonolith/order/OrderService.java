@@ -25,7 +25,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
 
     @Transactional
-    public OrderResult placeOrder(Long userId, List<OrderController.OrderLine> items) {
+    public OrderResult placeOrder( Long userId, List<OrderController.OrderLine> items ) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다. userId=" + userId));
 
@@ -48,21 +48,21 @@ public class OrderService {
             }
             product.setStockQuantity(product.getStockQuantity() - quantity);
 
-            OrderItem orderItem = OrderItem.create(product, quantity);
+            OrderItem orderItem = OrderItem.create(product.getName(), product.getPrice(), productId, quantity);
             orderItems.add(orderItem);
 
             BigDecimal lineAmount = product.getPrice().multiply(BigDecimal.valueOf(quantity));
             totalAmount = totalAmount.add(lineAmount);
         }
 
-        Order order = Order.create(user, orderItems);
+        Order order = Order.create(user.getId(), orderItems);
         order.setTotalAmount(totalAmount);
 
         Payment payment = Payment.ready(totalAmount);
         payment.setStatus(PaymentStatus.PAID);
         paymentRepository.save(payment);
 
-        order.assignPayment(payment);
+        order.assignPayment(payment.getId());
         order.setStatus(OrderStatus.PAID);
 
         Order saved = orderRepository.save(order);
