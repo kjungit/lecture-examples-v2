@@ -25,14 +25,19 @@ public class CartItem {
     @Column(nullable = false)
     private Integer quantity;
 
-    public static CartItem create(Long productId, int quantity) {
+    static CartItem create(Cart cart, Long productId, int quantity) {
         CartItem cartItem = new CartItem();
+        cartItem.cart = cart;
         cartItem.productId = productId;
         cartItem.quantity = quantity;
         return cartItem;
     }
 
-    void assignCart(Cart cart) {
-        this.cart = cart;
+    void increaseQuantity(int amount) {
+        this.quantity += amount;
+    }
+
+    void changeQuantity(int quantity) {
+        this.quantity = quantity;
     }
 }
